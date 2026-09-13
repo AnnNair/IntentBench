@@ -1,0 +1,39 @@
+# QLoRA training configuration -- one defensible default, trained once and
+# evaluated rigorously. No sweep in this 4-day scope; rank/LR/target-module
+# ablations are tracked as future work in README.md instead.
+
+run_id: qlora_r16_lr2e-4_seed42
+seed: 42
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: nf4
+  bnb_4bit_compute_dtype: float16
+  bnb_4bit_use_double_quant: true
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules: all-linear   # inspect model tree to confirm before training
+  bias: "none"
+  task_type: CAUSAL_LM
+
+training:
+  learning_rate: 2.0e-4
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  logging_steps: 10
+  save_strategy: epoch
+  eval_strategy: epoch
+  save_total_limit: 3
+  report_to: wandb
+  output_dir: outputs/checkpoints
+  best_model_dir: outputs/best
+
+wandb:
+  project: intentbench
+  entity: null   # set via WANDB_ENTITY env var

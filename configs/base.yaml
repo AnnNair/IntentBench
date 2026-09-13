@@ -1,0 +1,30 @@
+# Shared config for data, prompts, and evaluation. Every script reads this
+# instead of hard-coding values, so a run is fully reproducible from its
+# committed config (this is what a Dockerfile would otherwise pin).
+
+seed: 42
+
+dataset:
+  name: banking77
+  hf_path: banking77
+  val_fraction: 0.15   # carved out of the official train split
+  # The official test split is frozen at the end of Day 1 and evaluated
+  # exactly once, on Day 3.
+
+model:
+  base_model: google/gemma-2-2b-it
+  max_new_tokens: 16
+  compute_dtype: float16   # T4 is Turing -- bf16 is inefficient/unsupported at speed
+
+few_shot:
+  num_examples_per_class: 1
+  # Fixed example indices (by dataset row id), chosen once on Day 1 and
+  # reused for every future comparison -- never resampled per run.
+  example_seed: 42
+  num_examples: 10
+
+paths:
+  data_profile: outputs/metrics/data_profile.json
+  splits_dir: outputs/predictions/splits
+  labels_file: outputs/best/labels.json
+  benchmark_out: outputs/metrics/benchmark.json
